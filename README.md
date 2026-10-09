@@ -7,13 +7,14 @@
 <p align="center"><strong>Every key, in every environment, side by side.</strong></p>
 
 <p align="center">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/Achal13jain/envgrid" alt="Licence"></a>
-  <a href="https://github.com/Achal13jain/envgrid/releases/latest"><img src="https://img.shields.io/github/v/release/Achal13jain/envgrid" alt="Latest release"></a>
-  <a href="go.mod"><img src="https://img.shields.io/github/go-mod/go-version/Achal13jain/envgrid" alt="Go version"></a>
-  <a href="https://github.com/Achal13jain/envgrid/pkgs/container/envgrid"><img src="https://img.shields.io/badge/docker-ghcr.io-2496ED?logo=docker&logoColor=white" alt="Docker image"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Achal13jain/envgrid?style=flat-square" alt="Licence"></a>
+  <a href="https://github.com/Achal13jain/envgrid/releases/latest"><img src="https://img.shields.io/github/v/release/Achal13jain/envgrid?style=flat-square" alt="Latest release"></a>
+  <a href="go.mod"><img src="https://img.shields.io/github/go-mod/go-version/Achal13jain/envgrid?style=flat-square" alt="Go version"></a>
+  <a href="https://github.com/Achal13jain/envgrid/pkgs/container/envgrid"><img src="https://img.shields.io/badge/docker-ghcr.io-2496ED?logo=docker&logoColor=white&style=flat-square" alt="Docker image"></a>
 </p>
 
 <p align="center">
+  <a href="https://envgrid.pages.dev/">Website</a> &nbsp;|&nbsp;
   <a href="#quick-start">Quick start</a> &nbsp;|&nbsp;
   <a href="docs/features.md">Features</a> &nbsp;|&nbsp;
   <a href="docs/configuration.md">Configuration</a> &nbsp;|&nbsp;

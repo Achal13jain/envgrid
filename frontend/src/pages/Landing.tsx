@@ -578,6 +578,7 @@ function TourVideo() {
       className="w-full rounded-2xl border border-line shadow-xl"
       src={`/envgrid-tour-${theme}.mp4`}
       poster={`/envgrid-tour-${theme}.jpg`}
+      controls
       autoPlay={!still}
       muted
       loop
