@@ -1,0 +1,15 @@
+.git
+.github
+**/node_modules
+frontend/dist
+frontend/test-results
+frontend/playwright-report
+data
+*.db
+*.db-wal
+*.db-shm
+.env
+envgrid
+envgrid.exe
+
+_local

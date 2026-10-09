@@ -1,0 +1,21 @@
+# docker compose up -d
+# Put ENVGRID_MASTER_KEY (and, for the first start, the admin credentials) in
+# a .env file next to this one; see .env.example.
+services:
+  envgrid:
+    image: ghcr.io/achal13jain/envgrid:latest
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      ENVGRID_MASTER_KEY: ${ENVGRID_MASTER_KEY:?set ENVGRID_MASTER_KEY in .env (generate one with "docker run --rm ghcr.io/achal13jain/envgrid genkey")}
+      ENVGRID_ADMIN_EMAIL: ${ENVGRID_ADMIN_EMAIL:-}
+      ENVGRID_ADMIN_PASSWORD: ${ENVGRID_ADMIN_PASSWORD:-}
+      ENVGRID_SECURE_COOKIES: ${ENVGRID_SECURE_COOKIES:-true}
+      ENVGRID_TRUST_PROXY: ${ENVGRID_TRUST_PROXY:-false}
+    volumes:
+      - envgrid-data:/data
+    restart: unless-stopped
+
+volumes:
+  envgrid-data:

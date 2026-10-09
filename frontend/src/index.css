@@ -1,0 +1,173 @@
+@import "tailwindcss";
+@import "@fontsource-variable/atkinson-hyperlegible-next";
+@import "@fontsource-variable/atkinson-hyperlegible-mono";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+  Tokens. Every foreground/background pair used for text meets WCAG AA
+  (4.5:1) in both themes. State is never carried by color alone: missing
+  cells add a hatch, an icon and the word "missing"; protected columns add
+  a lock and the word "protected".
+*/
+:root {
+  --background: #eceff4;
+  --surface: #ffffff;
+  --surface-2: #f0f3f7;
+  --surface-alt: #f7f9fb;
+  --line: #d3d9e2;
+  --ink: #1b2230;
+  --muted: #566073;
+  --accent: #0b7672;
+  --accent-ink: #ffffff;
+  --accent-soft: #dff1ef;
+  --missing: #b42318;
+  --missing-soft: #fbe3e0;
+  --protected: #8a4f00;
+  --protected-soft: #fff1d6;
+  --changed: #5a3bc2;
+  --changed-soft: #ece6fd;
+  --focus: #0b7672;
+  /* Distinct values of one key, in order of first appearance. Checked with
+     the dataviz validator (all pairs, both modes); every use also shows a
+     letter, so colour is never the only signal. */
+  --diff-a: #2a78d6;
+  --diff-b: #e87ba4;
+  --diff-c: #008300;
+  --diff-other: #6b7280;
+}
+
+.dark {
+  --background: #0b1017;
+  --surface: #151c27;
+  --surface-2: #1d2634;
+  --surface-alt: #18202c;
+  --line: #313d4f;
+  --ink: #e6e9ef;
+  --muted: #a3adbe;
+  --accent: #52c7bf;
+  --accent-ink: #062321;
+  --accent-soft: #14332f;
+  --missing: #ff8f85;
+  --missing-soft: #3b1f1f;
+  --protected: #f0b759;
+  --protected-soft: #362a14;
+  --changed: #bba9ff;
+  --changed-soft: #2a2447;
+  --focus: #52c7bf;
+  --diff-a: #3987e5;
+  --diff-b: #d55181;
+  --diff-c: #008300;
+  --diff-other: #8b94a3;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-alt: var(--surface-alt);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-missing: var(--missing);
+  --color-missing-soft: var(--missing-soft);
+  --color-protected: var(--protected);
+  --color-protected-soft: var(--protected-soft);
+  --color-changed: var(--changed);
+  --color-changed-soft: var(--changed-soft);
+  --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Atkinson Hyperlegible Mono Variable", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    /* The default display size: 90% of the browser's text size fits more of
+       the grid on a laptop. Settings can pick 100% or 80%. */
+    font-size: 90%;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--background);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    /* rem, not px, so the display size setting scales text with everything else. */
+    font-size: 0.875rem;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  /* Headings get focus after a navigation so screen readers announce the
+     page; they are not controls, so they show no ring. */
+  h1[tabindex="-1"]:focus-visible {
+    outline: none;
+  }
+  ::selection {
+    background: var(--accent-soft);
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+}
+
+@layer components {
+  /* The sign-in page's backdrop: faint grid lines, like the grid itself,
+     fading out toward the edges. */
+  .grid-paper {
+    position: relative;
+    isolation: isolate;
+    background: var(--surface-2);
+  }
+  .grid-paper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 2.5rem 2.5rem;
+    mask-image: radial-gradient(ellipse at center, black 25%, transparent 70%);
+  }
+  /* Missing values: diagonal hatch, like an unfilled field on a form. */
+  .hatch-missing {
+    background-color: var(--surface);
+    background-image: repeating-linear-gradient(
+      135deg,
+      var(--missing-soft) 0 5px,
+      transparent 5px 11px
+    );
+  }
+  /* A value that differs from other environments: a stripe and a light tint
+     in its group colour (set as --diff on the cell). */
+  .diff-cell {
+    box-shadow: inset 4px 0 0 var(--diff);
+    background-color: color-mix(in oklab, var(--diff) 9%, var(--surface));
+  }
+  .diff-chip {
+    border-color: var(--diff);
+    background-color: color-mix(in oklab, var(--diff) 18%, var(--surface));
+  }
+  /* Grid cells keep their focus ring inside the cell so neighbours never clip it. */
+  .grid-cell:focus-visible {
+    outline-offset: -2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
