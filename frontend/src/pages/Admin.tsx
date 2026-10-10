@@ -28,7 +28,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { api, ApiError } from "@/lib/api";
 import { errorMessage, useAnnounce } from "@/lib/announce";
 import { hasEnded, personName, relativeTime } from "@/lib/format";
-import type { Role, User } from "@/lib/types";
+import type { APIToken, Role, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 /** Users: admins only. */
@@ -399,6 +399,7 @@ function EditUserDrawer({ user, self, onlyAdmin, onClose }: { user: User; self: 
                 )}
               </dd>
             </dl>
+            {!self && <UserTokens user={user} />}
             {user.role === "admin" && (
               <InlineMessage
                 tone={onlyAdmin ? "warning" : "info"}
@@ -426,6 +427,58 @@ function EditUserDrawer({ user, self, onlyAdmin, onClose }: { user: User; self: 
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+/** Someone else's API tokens, each with Revoke. Your own are in Settings. */
+function UserTokens({ user }: { user: User }) {
+  const announce = useAnnounce();
+  const qc = useQueryClient();
+  const [revoking, setRevoking] = useState<APIToken | null>(null);
+  const tokens = useQuery({ queryKey: ["user-tokens", user.id], queryFn: () => api.userTokens(user.id) });
+  const revoke = useMutation({
+    mutationFn: (t: APIToken) => api.deleteUserToken(user.id, t.id),
+    onSuccess: (_, t) => {
+      announce(`Revoked ${t.name}. Scripts using it stop working at once.`);
+      void qc.invalidateQueries({ queryKey: ["user-tokens", user.id] });
+    },
+    onError: (e) => announce(errorMessage(e)),
+  });
+  return (
+    <section aria-labelledby="user-tokens-title" className="text-sm">
+      <h3 id="user-tokens-title" className="font-semibold">
+        API tokens
+      </h3>
+      {tokens.isPending && <Loading label="Loading tokens" />}
+      {tokens.isError && <ErrorNotice error={tokens.error} />}
+      {tokens.data?.length === 0 && <p className="mt-1 text-muted">They have no API tokens.</p>}
+      {!!tokens.data?.length && (
+        <ul className="mt-2 divide-y divide-line rounded-lg border border-line">
+          {tokens.data.map((t) => (
+            <li key={t.id} className="flex items-center gap-3 px-3 py-2">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-semibold">{t.name}</span>
+                <span className="block text-xs text-muted">
+                  <span className="font-mono">{t.prefix}</span>, last used {t.lastUsedAt ? relativeTime(t.lastUsedAt) : "never"},{" "}
+                  {t.expiresAt ? (hasEnded(t.expiresAt) ? "ended" : `ends ${relativeTime(t.expiresAt)}`) : "no end date"}
+                </span>
+              </span>
+              <Button size="sm" className="text-missing hover:bg-missing-soft" onClick={() => setRevoking(t)}>
+                Revoke<span className="sr-only"> {t.name}</span>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <ConfirmDialog
+        open={revoking !== null}
+        onOpenChange={(o) => !o && setRevoking(null)}
+        title={revoking ? `Revoke ${revoking.name}?` : ""}
+        description="Scripts that use this token stop working at once. This cannot be undone."
+        confirmLabel="Revoke token"
+        onConfirm={() => revoking && revoke.mutate(revoking)}
+      />
+    </section>
   );
 }
 

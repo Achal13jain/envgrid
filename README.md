@@ -89,6 +89,7 @@ If you start envgrid without a master key, it prints a freshly generated one wit
 - [Configuration and operations](docs/configuration.md): settings, the command line client, backups and building from source.
 - [Security](SECURITY.md): how to report a problem, roles, and how values, passwords and sessions are protected.
 - [API](docs/api.md): the JSON API the web interface uses.
+- [Contributing](CONTRIBUTING.md): building from source, the checks CI runs, and the rules every change follows.
 - The full setup guide, including running envgrid as a service and giving your team access, is at `/docs` on every envgrid server and on the website.
 
 ## Licence

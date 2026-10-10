@@ -226,8 +226,7 @@ func parseYAML(body []byte) ([]KV, error) {
 		return nil, &ParseError{Line: root.Line, Msg: "top level must be a mapping"}
 	}
 	var out []KV
-	visits := 0
-	if err := flattenYAML(root, "", 0, &visits, &out); err != nil {
+	if err := flattenYAML(root, "", 0, &yamlWalk{seqs: map[*yaml.Node]string{}}, &out); err != nil {
 		return nil, err
 	}
 	return out, nil
@@ -240,11 +239,19 @@ func resolveAlias(n *yaml.Node) *yaml.Node {
 	return n
 }
 
-func flattenYAML(n *yaml.Node, prefix string, depth int, visits *int, out *[]KV) error {
+// yamlWalk is shared by one whole walk: the nodes visited so far, and each
+// sequence's JSON, so a sequence reached many times through aliases is
+// decoded once.
+type yamlWalk struct {
+	visits int
+	seqs   map[*yaml.Node]string
+}
+
+func flattenYAML(n *yaml.Node, prefix string, depth int, w *yamlWalk, out *[]KV) error {
 	// Aliases are followed by hand here, so yaml.v3's own alias limits do not
 	// apply; these caps bound the result instead. Counting visits stops
 	// aliases that fan out to empty mappings, which emit no keys.
-	if *visits++; *visits > maxVisits {
+	if w.visits++; w.visits > maxVisits {
 		return &ParseError{Line: n.Line, Msg: "aliases expand too far"}
 	}
 	if len(*out) > MaxKeys || len(prefix) > maxKeyLen || depth > maxDepth {
@@ -258,20 +265,25 @@ func flattenYAML(n *yaml.Node, prefix string, depth int, visits *int, out *[]KV)
 			if k.Kind != yaml.ScalarNode {
 				return &ParseError{Line: k.Line, Msg: "mapping keys must be scalars"}
 			}
-			if err := flattenYAML(n.Content[i+1], joinKey(prefix, k.Value), depth+1, visits, out); err != nil {
+			if err := flattenYAML(n.Content[i+1], joinKey(prefix, k.Value), depth+1, w, out); err != nil {
 				return err
 			}
 		}
 	case yaml.SequenceNode:
-		var v any
-		if err := n.Decode(&v); err != nil {
-			return &ParseError{Line: n.Line, Msg: "unsupported sequence"}
+		js, ok := w.seqs[n]
+		if !ok {
+			var v any
+			if err := n.Decode(&v); err != nil {
+				return &ParseError{Line: n.Line, Msg: "unsupported sequence"}
+			}
+			b, err := json.Marshal(v)
+			if err != nil {
+				return &ParseError{Line: n.Line, Msg: "sequence cannot be represented as JSON"}
+			}
+			js = string(b)
+			w.seqs[n] = js
 		}
-		js, err := json.Marshal(v)
-		if err != nil {
-			return &ParseError{Line: n.Line, Msg: "sequence cannot be represented as JSON"}
-		}
-		*out = append(*out, KV{Key: prefix, Value: string(js)})
+		*out = append(*out, KV{Key: prefix, Value: js})
 	case yaml.ScalarNode:
 		// The source text, not the resolved type: "1.0" stays "1.0".
 		*out = append(*out, KV{Key: prefix, Value: n.Value})
