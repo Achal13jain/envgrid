@@ -5,15 +5,13 @@
 /dist/
 frontend/dist/*
 frontend/dist-site/
-# Only what the app needs to build, run and release goes to GitHub.
-# Notes, media, templates and CI live in _local/; tests and lint
-# configs stay in place so they keep working, but are not published.
+# Only what the app needs to build, run, test and release goes to GitHub.
+# Notes and media live in _local/. Browser tests and the Go lint config
+# stay in place so they keep working locally, but are not published.
 _local/
-*_test.go
+*.zip
 frontend/e2e/
-frontend/src/**/*.test.ts
 frontend/playwright.config.ts
-frontend/eslint.config.js
 .golangci.yml
 !frontend/dist/.gitkeep
 frontend/node_modules/
