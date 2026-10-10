@@ -68,6 +68,40 @@ func (s *Server) deleteToken(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+// listUserTokens and deleteUserToken let an admin see and revoke one
+// person's tokens, for example one found in a leaked script, without
+// resetting that person's password.
+func (s *Server) listUserTokens(w http.ResponseWriter, r *http.Request) error {
+	id, err := pathID(r, "id")
+	if err != nil {
+		return err
+	}
+	tokens, err := s.store.APITokens(r.Context(), id)
+	if err != nil {
+		return err
+	}
+	return writeJSON(w, http.StatusOK, tokens)
+}
+
+func (s *Server) deleteUserToken(w http.ResponseWriter, r *http.Request) error {
+	id, err := pathID(r, "id")
+	if err != nil {
+		return err
+	}
+	tokenID, err := pathID(r, "tokenId")
+	if err != nil {
+		return err
+	}
+	if err := s.store.DeleteAPIToken(r.Context(), tokenID, id); err != nil {
+		return err
+	}
+	if err := s.audit(r, store.AuditEntry{Action: "delete_token", Detail: map[string]any{"token": tokenID, "owner": id}}); err != nil {
+		return err
+	}
+	w.WriteHeader(http.StatusNoContent)
+	return nil
+}
+
 // resolveNames turns repo, file and environment names into ids, so scripts
 // can say "acme-shop backend.env prod" instead of numbers.
 func (s *Server) resolveNames(w http.ResponseWriter, r *http.Request) error {

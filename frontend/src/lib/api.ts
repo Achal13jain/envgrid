@@ -186,6 +186,9 @@ export const api = {
   createToken: (name: string, expiresInDays: number) =>
     json<{ token: string; info: APIToken }>("POST", "/auth/tokens", { name, expiresInDays }),
   deleteToken: (id: number) => json<void>("DELETE", `/auth/tokens/${id}`),
+  /** Admins: another person's tokens, and revoking one of them. */
+  userTokens: (userId: number) => json<APIToken[]>("GET", `/users/${userId}/tokens`),
+  deleteUserToken: (userId: number, id: number) => json<void>("DELETE", `/users/${userId}/tokens/${id}`),
 
   audit: (params: {
     repo?: number;

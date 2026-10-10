@@ -46,15 +46,32 @@ type Server struct {
 	login *limiter
 	// stepUp limits current-password checks per account, like sign-in.
 	stepUp *limiter
-	// importing lets one bulk write (an import or a rollback) run at a time:
-	// each holds SQLite's single write lock, so stacking them would make
-	// other writes wait.
+	// importing lets one bulk write (an import, a restore or a key reorder)
+	// run at a time: each holds SQLite's single write lock, so stacking them
+	// would make other writes wait. bulk limits how often one person starts
+	// them, so nobody can keep the slot to themselves.
 	importing sync.Mutex
+	bulk      *limiter
+}
+
+// startBulk takes the one-bulk-write slot for the caller, or refuses with 429
+// when someone else holds it or the caller has started too many lately. The
+// caller must call the returned release.
+func (s *Server) startBulk(w http.ResponseWriter, r *http.Request) (release func(), err error) {
+	if !s.bulk.allow(strconv.FormatInt(currentUser(r).ID, 10)) {
+		w.Header().Set("Retry-After", "60")
+		return nil, &apiError{http.StatusTooManyRequests, "rate_limited", "too many imports, restores or reorders in a minute, wait a moment"}
+	}
+	if !s.importing.TryLock() {
+		w.Header().Set("Retry-After", "2")
+		return nil, &apiError{http.StatusTooManyRequests, "busy", "another import, restore or reorder is running, try again in a moment"}
+	}
+	return s.importing.Unlock, nil
 }
 
 // New builds a Server.
 func New(st *store.Store, log *slog.Logger, cfg Config) *Server {
-	return &Server{store: st, log: log, cfg: cfg, login: newLimiter(5, time.Minute), stepUp: newLimiter(5, time.Minute)}
+	return &Server{store: st, log: log, cfg: cfg, login: newLimiter(5, time.Minute), stepUp: newLimiter(5, time.Minute), bulk: newLimiter(30, time.Minute)}
 }
 
 const cookieName = "envgrid_session"
@@ -102,6 +119,8 @@ func (s *Server) Handler() http.Handler {
 				r.Get("/users", s.h(s.listUsers))
 				r.Post("/users", s.h(s.createUser))
 				r.Patch("/users/{id}", s.h(s.updateUser))
+				r.Get("/users/{id}/tokens", s.h(s.listUserTokens))
+				r.Delete("/users/{id}/tokens/{tokenId}", s.h(s.deleteUserToken))
 			})
 
 			r.Get("/repos", s.h(s.listRepos))

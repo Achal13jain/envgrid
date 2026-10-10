@@ -488,11 +488,11 @@ func (s *Server) importFile(w http.ResponseWriter, r *http.Request) error {
 	}
 	// dryRun=true answers what an import would do and stores nothing.
 	dryRun := r.URL.Query().Get("dryRun") == "true"
-	if !s.importing.TryLock() {
-		w.Header().Set("Retry-After", "2")
-		return &apiError{http.StatusTooManyRequests, "busy", "another import is running, try again in a moment"}
+	release, err := s.startBulk(w, r)
+	if err != nil {
+		return err
 	}
-	defer s.importing.Unlock()
+	defer release()
 	res, err := s.store.Import(r.Context(), f, env.ID, kvs, store.AuditEntry{
 		UserID: currentUser(r).ID, RepoID: f.RepoID, FileID: f.ID, EnvironmentID: env.ID,
 		Detail: map[string]any{"file": f.Name, "env": env.Name},

@@ -77,6 +77,23 @@ func checkSourceURL(v string) (string, error) {
 	return u.String(), nil
 }
 
+// refuseLookAlike rejects a repo name that differs from another repo's only
+// by Unicode case folding (the long s for s, the Kelvin sign for K). The
+// database's uniqueness folds ASCII only, so it lets these through, but people
+// picking a repo in the web interface cannot tell them apart.
+func (s *Server) refuseLookAlike(r *http.Request, name string, self int64) error {
+	repos, err := s.store.Repos(r.Context())
+	if err != nil {
+		return err
+	}
+	for _, rp := range repos {
+		if rp.ID != self && strings.EqualFold(rp.Name, name) && !sameName(rp.Name, name) {
+			return &apiError{http.StatusConflict, "conflict", "a repo with a name that looks the same already exists"}
+		}
+	}
+	return nil
+}
+
 func (s *Server) createRepo(w http.ResponseWriter, r *http.Request) error {
 	var in struct {
 		Name        string `json:"name"`
@@ -88,6 +105,9 @@ func (s *Server) createRepo(w http.ResponseWriter, r *http.Request) error {
 	}
 	name, err := cleanName("name", in.Name, 100)
 	if err != nil {
+		return err
+	}
+	if err := s.refuseLookAlike(r, name, 0); err != nil {
 		return err
 	}
 	source, err := checkSourceURL(in.SourceURL)
@@ -124,6 +144,9 @@ func (s *Server) updateRepo(w http.ResponseWriter, r *http.Request) error {
 		}
 		if name != repo.Name {
 			if err := s.requireRenameRight(r, s.store.RepoHasProtectedValues, repo.ID, "repo"); err != nil {
+				return err
+			}
+			if err := s.refuseLookAlike(r, name, repo.ID); err != nil {
 				return err
 			}
 		}
@@ -623,11 +646,11 @@ func (s *Server) reorderKeys(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	// Reordering a large file is a bulk write too, so it shares the slot.
-	if !s.importing.TryLock() {
-		w.Header().Set("Retry-After", "2")
-		return &apiError{http.StatusTooManyRequests, "busy", "another bulk change is running, try again in a moment"}
+	release, err := s.startBulk(w, r)
+	if err != nil {
+		return err
 	}
-	defer s.importing.Unlock()
+	defer release()
 	if err := s.store.ReorderKeys(r.Context(), f.ID, in.IDs); err != nil {
 		return err
 	}

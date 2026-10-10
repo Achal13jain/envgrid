@@ -86,11 +86,11 @@ func (s *Server) rollback(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	stamp := at.Format(time.RFC3339)
-	if !s.importing.TryLock() {
-		w.Header().Set("Retry-After", "2")
-		return &apiError{http.StatusTooManyRequests, "busy", "another import or restore is running, try again in a moment"}
+	release, err := s.startBulk(w, r)
+	if err != nil {
+		return err
 	}
-	defer s.importing.Unlock()
+	defer release()
 	changed, err := s.store.Rollback(r.Context(), f.ID, env.ID, at, store.AuditEntry{
 		UserID: currentUser(r).ID, RepoID: f.RepoID, FileID: f.ID, EnvironmentID: env.ID,
 		Detail: map[string]any{"file": f.Name, "env": env.Name, "restoredTo": stamp},
