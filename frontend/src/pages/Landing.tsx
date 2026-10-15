@@ -114,7 +114,7 @@ const nav = [
 
 /** The public front page: what envgrid is, how it protects values, and how to run it. */
 export function LandingPage() {
-  useDocumentTitle("Every key, in every environment");
+  useDocumentTitle("Self-hosted env manager for teams");
   return (
     <div className="min-h-dvh bg-background">
       <a href="#main" className="sr-only z-50 rounded-md bg-accent px-3 py-2 text-accent-ink focus:not-sr-only focus:fixed focus:top-2 focus:left-2">
@@ -150,8 +150,8 @@ export function LandingPage() {
               </p>
               <h1 className="mt-5 text-4xl leading-[1.05] font-bold tracking-tight sm:text-5xl lg:text-6xl">Every key, in every environment, side by side.</h1>
               <p className="mt-6 max-w-xl text-lg text-muted">
-                envgrid is a small, open-source home for your team's environment variables, constants and config files. You run it yourself, and you see
-                what prod is missing before it ships.
+                envgrid is a small, open-source, self-hosted env manager: one home for your team's environment variables, constants and config files,
+                where you see what prod is missing before it ships.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <Button asChild variant="primary" className="h-11 px-5 text-base">

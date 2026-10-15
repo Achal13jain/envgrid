@@ -253,7 +253,7 @@ envgrid run --repo my-repo --file backend.env --env prod -- node server.js`}
 
 /** Setup and operating guide, for one person or a whole team. */
 export function DocsPage() {
-  useDocumentTitle("Docs");
+  useDocumentTitle("Set up envgrid with Docker or a single binary");
   return (
     <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-30 border-b border-line bg-surface/95 backdrop-blur">
@@ -270,7 +270,7 @@ export function DocsPage() {
           </div>
         </div>
       </header>
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-10 lg:grid-cols-[13rem_minmax(0,1fr)]">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-10 lg:grid-cols-[13rem_minmax(0,1fr)]">
         <nav aria-label="On this page" className="hidden lg:block">
           <ul className="sticky top-24 space-y-2 text-sm">
             {sections.map((s) => (
