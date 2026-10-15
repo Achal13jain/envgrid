@@ -1,0 +1,25 @@
+# envgrid
+
+> envgrid is a small, open-source, self-hosted env manager: a web app where a team keeps its environment variables, constants and config files for each environment, such as test, uat and prod. Each file is shown as a grid with keys as rows and environments as columns, so missing and differing values stand out before a release. Every value is encrypted at rest and has a full version history. It is one Go binary and one SQLite file, released under the MIT licence.
+
+envgrid imports and exports .env, JSON, YAML, INI, .properties, PHP constants and CSV, and keeps any other text file whole. It has two roles, admin and member; a protected environment (prod by default) turns a member's edit into a change request that an admin approves. A command line client, `envgrid export` and `envgrid run`, reads values with an API token. envgrid has no integrations and no cloud service: you run it yourself, with Docker (image `ghcr.io/achal13jain/envgrid`) or a single binary for Linux, macOS or Windows. Every link below is plain Markdown or plain text.
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/Achal13jain/envgrid/main/README.md): what envgrid is, and the quick start with and without Docker
+- [Features](https://raw.githubusercontent.com/Achal13jain/envgrid/main/docs/features.md): everything envgrid does, what it does not do, and the roadmap
+- [Configuration and operations](https://raw.githubusercontent.com/Achal13jain/envgrid/main/docs/configuration.md): environment variables, the command line client, backup and restore, and building from source
+- [Security](https://raw.githubusercontent.com/Achal13jain/envgrid/main/SECURITY.md): how to report a vulnerability, who can do what, and the security model
+- [API](https://raw.githubusercontent.com/Achal13jain/envgrid/main/docs/api.md): the JSON API under /api/v1 and its endpoints
+
+## Source and releases
+
+- [GitHub repository](https://github.com/Achal13jain/envgrid): source code, issues and pull requests
+- [Latest release](https://github.com/Achal13jain/envgrid/releases/latest): archives for Linux, macOS and Windows with SHA-256 checksums
+- [Docker image](https://github.com/Achal13jain/envgrid/pkgs/container/envgrid): `ghcr.io/achal13jain/envgrid`, for amd64 and arm64
+
+## Optional
+
+- [Contributing](https://raw.githubusercontent.com/Achal13jain/envgrid/main/CONTRIBUTING.md): building from source, the checks CI runs, and the rules every change follows
+- [Licence](https://raw.githubusercontent.com/Achal13jain/envgrid/main/LICENSE): MIT
+- [Website](https://envgrid.pages.dev/): the landing page and a setup guide at /docs, drawn with JavaScript
