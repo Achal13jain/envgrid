@@ -22,7 +22,7 @@
   <a href="https://github.com/Achal13jain/envgrid/releases">Releases</a>
 </p>
 
-envgrid is a small, self-hosted place for a team to keep environment variables, constants and config files for each of its environments, such as test, uat and prod. Keys are rows, environments are columns, and every missing value is marked, so you see what prod lacks before it ships. It is one binary and one SQLite file.
+envgrid is a small, self-hosted env manager: one place for a team to keep environment variables, constants and config files for each of its environments, such as test, uat and prod. Keys are rows, environments are columns, and every missing value is marked, so you see what prod lacks before it ships. It is one binary and one SQLite file.
 
 <p align="center">
   <a href="https://github.com/Achal13jain/envgrid/releases/tag/media"><img src="docs/envgrid.gif" alt="A short tour of envgrid" width="100%"></a>
