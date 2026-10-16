@@ -54,6 +54,8 @@ const pages = [
   {
     file: "index.html",
     path: "/",
+    // Proves ownership to Google Search Console. Google checks for it periodically, so it must stay.
+    meta: ['<meta name="google-site-verification" content="GiMahENLw7We9Krv0UmKnXSTkJDdAIG0_7VBHaa2KH4">'],
     title: "Self-hosted env manager for teams | envgrid",
     description:
       "envgrid is an open-source, self-hosted env manager for your team's environment variables and config files: every key in every environment, side by side.",
@@ -82,7 +84,7 @@ const pages = [
   { file: "404.html", title: "Page not found | envgrid", description: "This page does not exist on the envgrid website.", noindex: true },
 ];
 for (const p of pages) {
-  const head = [...preload];
+  const head = [...preload, ...(p.meta ?? [])];
   if (p.noindex) head.push('<meta name="robots" content="noindex">');
   else if (site) head.push(`<link rel="canonical" href="${site}${p.path}">`, `<meta property="og:url" content="${site}${p.path}">`);
   if (p.jsonld) head.push(`<script type="application/ld+json">${JSON.stringify(p.jsonld).replace(/</g, "\\u003c")}</script>`);
