@@ -19,7 +19,9 @@ Commands: `envgrid serve` (the default), `envgrid seed`, `envgrid genkey` and `e
 
 ## Command line client
 
-The same binary reads values from a running envgrid with an API token. Create a token in Settings, then:
+The same binary reads values from a running envgrid with an API token. Create a token in Settings, then set the URL and token in the terminal where you will run the command.
+
+Linux (Bash) and macOS (zsh or Bash):
 
 ```sh
 export ENVGRID_URL=https://envgrid.example.com
@@ -28,6 +30,17 @@ envgrid export --repo acme-shop --file backend.env --env prod > .env
 envgrid export --repo acme-shop --file backend.env --env prod --format json
 envgrid run --repo acme-shop --file backend.env --env prod -- node server.js
 ```
+
+Windows (PowerShell):
+
+```powershell
+$env:ENVGRID_URL = 'https://envgrid.example.com'
+$env:ENVGRID_TOKEN = 'egt_...'
+envgrid export --repo acme-shop --file backend.env --env prod > .env
+envgrid run --repo acme-shop --file backend.env --env prod -- node server.js
+```
+
+These variables apply only to the current terminal session.
 
 `--no-resolve` keeps `${...}` references as written. The token acts as its owner, with the same role, and every read is in the audit log.
 
