@@ -64,29 +64,35 @@ const sections: { id: string; title: string; body: ReactNode }[] = [
     title: "Install without Docker",
     body: (
       <>
-        <p>envgrid is one program with no other parts to install. The scripts below download the latest release for your system and put it on your PATH.</p>
-        <h3 className="font-bold">Linux and macOS</h3>
+        <p>envgrid is one program with no other parts to install. Run the installer for your operating system in its terminal. It downloads the latest release, verifies its checksum, and adds the program to your PATH.</p>
+        <h3 className="font-bold">Linux (Bash)</h3>
         <Code text={`curl -fsSL ${RAW}/install.sh | sh`} />
+        <h3 className="font-bold">macOS (Terminal, zsh or Bash)</h3>
+        <Code text={`curl -fsSL ${RAW}/install.sh | sh`} />
+        <p>After installation, generate a master key and save it in a password manager. The environment variables below last only for the current terminal window; set them again in a new one.</p>
+        <h3 className="font-bold">Linux (Bash) and macOS (zsh or Bash)</h3>
         <Code
           text={`envgrid genkey
-export ENVGRID_MASTER_KEY='paste-the-key-here'
+export ENVGRID_MASTER_KEY='paste-the-key-printed-above'
 export ENVGRID_DATA_DIR="$HOME/.envgrid"
-export ENVGRID_ADMIN_EMAIL=you@example.com
-export ENVGRID_ADMIN_PASSWORD='choose-a-long-password'
+export ENVGRID_ADMIN_EMAIL='you@example.com'
+export ENVGRID_ADMIN_PASSWORD='choose-a-password-of-at-least-8-characters'
 export ENVGRID_SECURE_COOKIES=false
 envgrid serve`}
         />
         <h3 className="font-bold">Windows (PowerShell)</h3>
         <Code text={`irm ${RAW}/install.ps1 | iex`} />
+        <h3 className="font-bold">Windows (PowerShell)</h3>
         <Code
           text={`envgrid genkey
-$env:ENVGRID_MASTER_KEY = 'paste-the-key-here'
-$env:ENVGRID_DATA_DIR = "$env:LOCALAPPDATA\\envgrid\\data"
+$env:ENVGRID_MASTER_KEY = 'paste-the-key-printed-above'
+$env:ENVGRID_DATA_DIR = Join-Path $env:LOCALAPPDATA (Join-Path 'envgrid' 'data')
 $env:ENVGRID_ADMIN_EMAIL = 'you@example.com'
-$env:ENVGRID_ADMIN_PASSWORD = 'choose-a-long-password'
+$env:ENVGRID_ADMIN_PASSWORD = 'choose-a-password-of-at-least-8-characters'
 $env:ENVGRID_SECURE_COOKIES = 'false'
 envgrid serve`}
         />
+        <p>Open <C>http://localhost:8080</C> and sign in with the admin email and password you set. <C>ENVGRID_SECURE_COOKIES=false</C> is for local HTTP testing only. For a public deployment behind HTTPS, leave it unset so secure cookies stay enabled.</p>
         <p>
           You can also download an archive for your system from the{" "}
           <a className="text-accent underline" href={`${REPO_URL}/releases/latest`}>
@@ -186,10 +192,18 @@ WantedBy=multi-user.target`}
     title: "Use values in your apps",
     body: (
       <>
-        <p>Create an API token in Settings, then use the same envgrid program as a client:</p>
+        <p>Create an API token in Settings, then set the URL and token in the terminal where you will run the command. Choose the syntax for your shell:</p>
+        <h3 className="font-bold">Linux (Bash) and macOS (zsh or Bash)</h3>
         <Code
           text={`export ENVGRID_URL=https://envgrid.example.com
 export ENVGRID_TOKEN=egt_...
+envgrid export --repo my-repo --file backend.env --env prod > .env
+envgrid run --repo my-repo --file backend.env --env prod -- node server.js`}
+        />
+        <h3 className="font-bold">Windows (PowerShell)</h3>
+        <Code
+          text={`$env:ENVGRID_URL = 'https://envgrid.example.com'
+$env:ENVGRID_TOKEN = 'egt_...'
 envgrid export --repo my-repo --file backend.env --env prod > .env
 envgrid run --repo my-repo --file backend.env --env prod -- node server.js`}
         />

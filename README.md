@@ -59,25 +59,53 @@ You can also use `docker-compose.yml` with a `.env` file based on `.env.example`
 
 envgrid is one program. These scripts download the latest release for your system, check it against the release's checksums file (which catches a damaged download) and put it on your PATH.
 
+Install from the terminal for your operating system:
+
+**Linux (Bash):**
+
 ```sh
-# Linux and macOS
 curl -fsSL https://raw.githubusercontent.com/Achal13jain/envgrid/main/install.sh | sh
 ```
 
+**macOS (Terminal, zsh or Bash):**
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/Achal13jain/envgrid/main/install.sh | sh
+```
+
+**Windows (PowerShell):**
+
 ```powershell
-# Windows (PowerShell)
 irm https://raw.githubusercontent.com/Achal13jain/envgrid/main/install.ps1 | iex
 ```
 
-Then make a key and start it:
+Generate a master key and save it in your password manager. Then set the environment variables and start envgrid using the commands for your shell. These settings apply only to that terminal window; if you close it, set them again.
+
+**Linux (Bash) and macOS (zsh or Bash):**
 
 ```sh
-envgrid genkey          # prints a new key; save it
-export ENVGRID_MASTER_KEY='paste-the-key-here'
-export ENVGRID_DATA_DIR=./data
+envgrid genkey          # copy the key it prints, then save it securely
+export ENVGRID_MASTER_KEY='paste-the-key-printed-above'
+export ENVGRID_DATA_DIR="$HOME/.envgrid"
+export ENVGRID_ADMIN_EMAIL='you@example.com'
+export ENVGRID_ADMIN_PASSWORD='choose-a-password-of-at-least-8-characters'
 export ENVGRID_SECURE_COOKIES=false
-ENVGRID_ADMIN_EMAIL=you@example.com ENVGRID_ADMIN_PASSWORD='choose-a-long-password' envgrid
+envgrid serve
 ```
+
+**Windows (PowerShell):**
+
+```powershell
+envgrid genkey          # copy the key it prints, then save it securely
+$env:ENVGRID_MASTER_KEY = 'paste-the-key-printed-above'
+$env:ENVGRID_DATA_DIR = Join-Path $env:LOCALAPPDATA 'envgrid\data'
+$env:ENVGRID_ADMIN_EMAIL = 'you@example.com'
+$env:ENVGRID_ADMIN_PASSWORD = 'choose-a-password-of-at-least-8-characters'
+$env:ENVGRID_SECURE_COOKIES = 'false'
+envgrid serve
+```
+
+Open http://localhost:8080 and sign in with the admin email and password you set. `ENVGRID_SECURE_COOKIES=false` is for local HTTP testing only. For a public deployment behind HTTPS, leave it unset so the secure default stays enabled.
 
 You can also download the archive for your system from the [latest release](https://github.com/Achal13jain/envgrid/releases/latest). The docs page explains running envgrid as a service, giving your team access, and Windows commands.
 
