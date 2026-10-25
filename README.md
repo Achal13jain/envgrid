@@ -79,37 +79,34 @@ curl -fsSL https://raw.githubusercontent.com/Achal13jain/envgrid/main/install.sh
 irm https://raw.githubusercontent.com/Achal13jain/envgrid/main/install.ps1 | iex
 ```
 
-Generate a master key and save it in your password manager. Then set the environment variables and start envgrid using the commands for your shell. These settings apply only to that terminal window; if you close it, set them again.
-
-**Linux (Bash) and macOS (zsh or Bash):**
+Then set envgrid up once. `envgrid init` creates the master key, stores it in your computer's secure key store, creates the first admin (it asks for an email and a password, and does not show the password) and remembers where the data lives:
 
 ```sh
-envgrid genkey          # copy the key it prints, then save it securely
-export ENVGRID_MASTER_KEY='paste-the-key-printed-above'
-export ENVGRID_DATA_DIR="$HOME/.envgrid"
-export ENVGRID_ADMIN_EMAIL='you@example.com'
-export ENVGRID_ADMIN_PASSWORD='choose-a-password-of-at-least-8-characters'
-export ENVGRID_SECURE_COOKIES=false
+envgrid init
+```
+
+It prints where your data is and shows the master key once. Save that key in your password manager: it is the only way to read your data if this computer or your user account is lost. `envgrid key` prints it again while you are signed in.
+
+From then on, start envgrid in any new terminal with:
+
+```sh
 envgrid serve
 ```
 
-**Windows (PowerShell):**
+Then open http://127.0.0.1:8080. Both commands are the same in PowerShell on Windows, Terminal on macOS and Bash on Linux.
 
-```powershell
-envgrid genkey          # copy the key it prints, then save it securely
-$env:ENVGRID_MASTER_KEY = 'paste-the-key-printed-above'
-$env:ENVGRID_DATA_DIR = Join-Path $env:LOCALAPPDATA 'envgrid\data'
-$env:ENVGRID_ADMIN_EMAIL = 'you@example.com'
-$env:ENVGRID_ADMIN_PASSWORD = 'choose-a-password-of-at-least-8-characters'
-$env:ENVGRID_SECURE_COOKIES = 'false'
-envgrid serve
-```
+| | Windows | macOS | Linux |
+| --- | --- | --- | --- |
+| Data | `%LOCALAPPDATA%\envgrid\data` | `~/.envgrid` | `~/.envgrid` |
+| Master key | Windows data protection (DPAPI), tied to your Windows account | Your default keychain, normally the login keychain | Your desktop keyring (GNOME Keyring or KWallet), through `secret-tool` |
 
-Open http://localhost:8080 and sign in with the admin email and password you set. `ENVGRID_SECURE_COOKIES=false` is for local HTTP testing only. For a public deployment behind HTTPS, leave it unset so the secure default stays enabled.
+On Linux, `secret-tool` is in the `libsecret-tools` package on Debian and Ubuntu, and it needs a running, unlocked keyring. Servers without a desktop session usually have none; set `ENVGRID_MASTER_KEY` there instead.
 
-You can also download the archive for your system from the [latest release](https://github.com/Achal13jain/envgrid/releases/latest). The docs page explains running envgrid as a service, giving your team access, and Windows commands.
+If envgrid finds a database but no key, it stops and says so. It never makes a new key for an existing database, and it never replaces a missing database with an empty one. To move or reset the setup, run `envgrid forget` (it asks for your key first and never deletes data), then `envgrid init` again.
 
-If you start envgrid without a master key, it prints a freshly generated one with instructions and exits without touching any data.
+For a server, a service or Docker, skip `envgrid init` and set environment variables instead; they always take precedence over the saved setup. [Configuration and operations](docs/configuration.md) has the commands for each shell, and explains which setting wins.
+
+You can also download the archive for your system from the [latest release](https://github.com/Achal13jain/envgrid/releases/latest). The docs page explains running envgrid as a service and giving your team access.
 
 ## Learn more
 
