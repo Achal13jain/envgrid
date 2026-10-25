@@ -11,7 +11,7 @@ const IMAGE = "ghcr.io/achal13jain/envgrid";
 const C = ({ children }: { children: ReactNode }) => <code className="rounded bg-surface-2 px-1 font-mono text-[0.9em]">{children}</code>;
 
 const settings: [string, string, string][] = [
-  ["ENVGRID_MASTER_KEY", "required", "Encrypts every value. Make one with envgrid genkey and keep it in a password manager, apart from your backups. Without it the data cannot be read."],
+  ["ENVGRID_MASTER_KEY", "none", "Encrypts every value. Required unless envgrid init stored it on this computer. Make one with envgrid genkey and keep it in a password manager, apart from your backups. Without it the data cannot be read."],
   ["ENVGRID_ADMIN_EMAIL", "empty", "With ENVGRID_ADMIN_PASSWORD, creates the first admin on the very first start, when no user exists yet."],
   ["ENVGRID_ADMIN_PASSWORD", "empty", "The first admin's password, at least 8 characters. Change it in Settings after signing in."],
   ["ENVGRID_DATA_DIR", "/data", "The folder that holds envgrid.db. On Windows the default is %LOCALAPPDATA%\\envgrid\\data. Elsewhere, set it when you run the binary, for example ./data."],
@@ -65,34 +65,29 @@ const sections: { id: string; title: string; body: ReactNode }[] = [
     body: (
       <>
         <p>envgrid is one program with no other parts to install. Run the installer for your operating system in its terminal. It downloads the latest release, verifies its checksum, and adds the program to your PATH.</p>
-        <h3 className="font-bold">Linux (Bash)</h3>
+        <h3 className="font-bold">Linux (Bash) and macOS (Terminal, zsh or Bash)</h3>
         <Code text={`curl -fsSL ${RAW}/install.sh | sh`} />
-        <h3 className="font-bold">macOS (Terminal, zsh or Bash)</h3>
-        <Code text={`curl -fsSL ${RAW}/install.sh | sh`} />
-        <p>After installation, generate a master key and save it in a password manager. The environment variables below last only for the current terminal window; set them again in a new one.</p>
-        <h3 className="font-bold">Linux (Bash) and macOS (zsh or Bash)</h3>
-        <Code
-          text={`envgrid genkey
-export ENVGRID_MASTER_KEY='paste-the-key-printed-above'
-export ENVGRID_DATA_DIR="$HOME/.envgrid"
-export ENVGRID_ADMIN_EMAIL='you@example.com'
-export ENVGRID_ADMIN_PASSWORD='choose-a-password-of-at-least-8-characters'
-export ENVGRID_SECURE_COOKIES=false
-envgrid serve`}
-        />
         <h3 className="font-bold">Windows (PowerShell)</h3>
         <Code text={`irm ${RAW}/install.ps1 | iex`} />
-        <h3 className="font-bold">Windows (PowerShell)</h3>
-        <Code
-          text={`envgrid genkey
-$env:ENVGRID_MASTER_KEY = 'paste-the-key-printed-above'
-$env:ENVGRID_DATA_DIR = Join-Path $env:LOCALAPPDATA (Join-Path 'envgrid' 'data')
-$env:ENVGRID_ADMIN_EMAIL = 'you@example.com'
-$env:ENVGRID_ADMIN_PASSWORD = 'choose-a-password-of-at-least-8-characters'
-$env:ENVGRID_SECURE_COOKIES = 'false'
-envgrid serve`}
-        />
-        <p>Open <C>http://localhost:8080</C> and sign in with the admin email and password you set. <C>ENVGRID_SECURE_COOKIES=false</C> is for local HTTP testing only. For a public deployment behind HTTPS, leave it unset so secure cookies stay enabled.</p>
+        <p>
+          Then set envgrid up once, in the same terminal. <C>envgrid init</C> creates the master key, stores it in your computer&apos;s secure key store, asks for
+          the first admin&apos;s email and a password (the password is not shown) and remembers where the data lives. It shows the key once: save it in a password
+          manager, because it is the only way to read the data if this computer or your account is lost. <C>envgrid key</C> prints it again later.
+        </p>
+        <Code text="envgrid init" />
+        <p>
+          From then on, in any new terminal, start envgrid and open <C>http://127.0.0.1:8080</C>. Both commands are the same in PowerShell, zsh and Bash.
+        </p>
+        <Code text="envgrid serve" />
+        <p>
+          The data goes in <C>{"%LOCALAPPDATA%\\envgrid\\data"}</C> on Windows and <C>~/.envgrid</C> on macOS and Linux. The key goes in Windows data protection
+          (DPAPI) for your account, your default macOS keychain, or your Linux desktop keyring through <C>secret-tool</C> (package <C>libsecret-tools</C> on Debian and
+          Ubuntu). A Linux server without a desktop session usually has no keyring; there, set the variables shown under Keep it running instead.
+        </p>
+        <p>
+          envgrid never makes a new key for a database that already exists, and never replaces a missing database with an empty one: it stops and says what to do.
+          To move or reset the setup, run <C>envgrid forget</C>, which asks for your key first and never deletes data, then <C>envgrid init</C> again.
+        </p>
         <p>
           You can also download an archive for your system from the{" "}
           <a className="text-accent underline" href={`${REPO_URL}/releases/latest`}>
@@ -108,7 +103,10 @@ envgrid serve`}
     title: "Settings",
     body: (
       <>
-        <p>envgrid is configured with environment variables.</p>
+        <p>
+          Each setting comes from its environment variable when that is set, otherwise from the setup saved by <C>envgrid init</C>, otherwise from its default.
+          Servers, services and Docker use the variables, and a variable always wins over the saved setup.
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
