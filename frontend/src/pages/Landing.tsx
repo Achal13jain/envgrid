@@ -270,10 +270,35 @@ export function LandingPage() {
       </main>
 
       <footer className="border-t border-line bg-surface-alt">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-4 px-4 py-8 text-sm text-muted">
-          <Logo />
-          <p>Open source under the MIT licence.</p>
-          <nav aria-label="Footer" className="flex flex-wrap gap-x-6 gap-y-2 md:ml-auto">
+        <div
+          className={cn(
+            "mx-auto max-w-6xl px-4 py-8 text-sm text-muted",
+            SITE ? "grid grid-cols-1 items-center gap-6 md:grid-cols-[1fr_auto_1fr]" : "flex flex-wrap items-center gap-x-8 gap-y-4",
+          )}
+        >
+          <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", SITE && "justify-center md:justify-self-start")}>
+            <Logo />
+            <p>Open source under the MIT licence.</p>
+          </div>
+          {SITE && (
+            <a
+              href="https://peerlist.io/jainachal13/project/envgrid"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="View envgrid on Peerlist"
+              className="justify-self-center"
+            >
+              <img
+                src="https://peerlist.io/api/v1/projects/embed/PRJH8OEQBKKDMM8B92DOKG9ORBQKGA?showUpvote=false&theme=light"
+                alt="envgrid on Peerlist"
+                style={{ width: "auto", height: 64 }}
+              />
+            </a>
+          )}
+          <nav
+            aria-label="Footer"
+            className={cn("flex flex-wrap gap-x-6 gap-y-2", SITE ? "justify-center md:justify-self-end" : "ml-auto")}
+          >
             {nav.map(([href, label]) => (
               <a key={href} href={href} className="hover:text-ink">
                 {label}
