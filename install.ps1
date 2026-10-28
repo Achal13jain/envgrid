@@ -24,7 +24,7 @@ try {
         $env:Path = "$env:Path;$dir"
     }
     Write-Host "Installed $(& "$dir\envgrid.exe" version) to $dir\envgrid.exe"
-    Write-Host "Next: run 'envgrid genkey', then see https://github.com/$repo#quick-start"
+    Write-Host "Next: run 'envgrid init' once to set it up, then 'envgrid serve'. Guide: https://github.com/$repo#without-docker"
 } finally {
     Remove-Item -Recurse -Force $tmp
 }
