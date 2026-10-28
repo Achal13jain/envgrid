@@ -46,4 +46,4 @@ else
   exit 1
 fi
 echo "Installed $("$dir/envgrid" version) to $dir/envgrid"
-echo "Next: run 'envgrid genkey', then see https://github.com/$repo#quick-start"
+echo "Next: run 'envgrid init' once to set it up, then 'envgrid serve'. Guide: https://github.com/$repo#without-docker"
